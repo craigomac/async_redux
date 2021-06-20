@@ -79,6 +79,7 @@ typedef Dispatch<St> = Future<ActionStatus> Function(
 class Store<St> {
   Store({
     required St initialState,
+    dynamic environment,
     bool syncStream = false,
     TestInfoPrinter? testInfoPrinter,
     List<ActionObserver>? actionObservers,
@@ -90,6 +91,7 @@ class Store<St> {
     bool? defaultDistinct,
     CompareBy? immutableCollectionEquality,
   })  : _state = initialState,
+        _environment = environment,
         _stateTimestamp = DateTime.now().toUtc(),
         _changeController = StreamController.broadcast(sync: syncStream),
         _actionObservers = actionObservers,
@@ -113,12 +115,17 @@ class Store<St> {
             null
             : StreamController.broadcast(sync: syncStream);
 
+  final dynamic _environment;
+
   St _state;
 
   DateTime _stateTimestamp;
 
   /// The current state of the app.
   St get state => _state;
+
+  /// The dependency environment.
+  dynamic get environment => _environment;
 
   /// The timestamp of the current state in the store, in UTC.
   DateTime get stateTimestamp => _stateTimestamp;

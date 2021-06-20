@@ -1,5 +1,11 @@
 part of async_redux_store;
 
+abstract class ReduxActionWithEnvironment<St, Environment> extends ReduxAction<St> {
+
+  Environment get environment => _store.environment;
+
+}
+
 // Developed by Marcelo Glasberg (Aug 2019).
 // Based upon packages redux by Brian Egan, and flutter_redux by Brian Egan and John Ryan.
 // Uses code from package equatable by Felix Angelov.

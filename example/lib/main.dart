@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +8,13 @@ import 'package:flutter/material.dart';
 
 late Store<int> store;
 
+/// Demonstrating an environment that could be mocked for tests.
+class RandomNumberGenerator {
+  final _random = Random();
+
+  int next() => _random.nextInt(100);
+}
+
 /// This example shows a counter and a button.
 /// When the button is tapped, the counter will increment synchronously.
 ///
@@ -13,7 +22,10 @@ late Store<int> store;
 /// and thus the store is defined as `Store<int>`. The initial state is 0.
 ///
 void main() {
-  store = Store<int>(initialState: 0);
+  store = Store<int>(
+    initialState: 0,
+    environment: RandomNumberGenerator()
+  );
   runApp(MyApp());
 }
 
@@ -29,13 +41,13 @@ class MyApp extends StatelessWidget {
 ///////////////////////////////////////////////////////////////////////////////
 
 /// This action increments the counter by [amount]].
-class IncrementAction extends ReduxAction<int> {
+class IncrementAction extends ReduxActionWithEnvironment<int, RandomNumberGenerator> {
   final int amount;
 
   IncrementAction({required this.amount});
 
   @override
-  int reduce() => state + amount;
+  int reduce() => state + amount + environment.next();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
