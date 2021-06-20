@@ -44,7 +44,7 @@ class StoreTester<St, Environment> {
 
   St get state => _store.state;
 
-  Environment get environment => _store.environment;
+  Environment? get environment => _store.environment;
 
   /// The last TestInfo read after some wait method.
   late TestInfo<St, Environment> lastInfo;

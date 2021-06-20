@@ -5,9 +5,9 @@ import 'package:async_redux/async_redux.dart';
 typedef TestInfoPrinter = void Function(TestInfo);
 
 class TestInfo<St, Environment> {
-  final St state;
-  final Environment environment;
+  final St state;  
   final bool ini;
+  final Environment? environment;
   final ReduxAction<St, Environment>? action;
   final int dispatchCount;
   final int reduceCount;

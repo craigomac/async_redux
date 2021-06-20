@@ -119,7 +119,7 @@ class MockStore<St, Environment> extends Store<St, Environment> {
         MockAction<St, Environment> mockAction = _GeneralActionSync(mock);
         mockAction._setAction(action);
         return mockAction;
-      } else if (mock is Future<St> Function(ReduxAction<St, Environment>, St, Environment)) {
+      } else if (mock is Future<St> Function(ReduxAction<St, Environment>, St, Environment?)) {
         MockAction<St, Environment> mockAction = _GeneralActionAsync(mock);
         mockAction._setAction(action);
         return mockAction;
@@ -165,7 +165,7 @@ class _GeneralActionSync<St, Environment> extends MockAction<St, Environment> {
 // /////////////////////////////////////////////////////////////////////////////
 
 class _GeneralActionAsync<St, Environment> extends MockAction<St, Environment> {
-  final Future<St> Function(ReduxAction<St, Environment> action, St state, Environment environment) _reducer;
+  final Future<St> Function(ReduxAction<St, Environment> action, St state, Environment? environment) _reducer;
 
   _GeneralActionAsync(this._reducer);
 

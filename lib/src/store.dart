@@ -79,7 +79,7 @@ typedef Dispatch<St, Environment> = Future<ActionStatus> Function(
 class Store<St, Environment> {
   Store({
     required St initialState,
-    required Environment environment,
+    Environment? environment,
     bool syncStream = false,
     TestInfoPrinter? testInfoPrinter,
     List<ActionObserver>? actionObservers,
@@ -117,7 +117,7 @@ class Store<St, Environment> {
 
   St _state;
 
-  final Environment _environment;
+  final Environment? _environment;
 
   DateTime _stateTimestamp;
 
@@ -125,7 +125,7 @@ class Store<St, Environment> {
   St get state => _state;
 
   /// The environment, by which an app collects its dependencies.
-  Environment get environment => _environment;
+  Environment? get environment => _environment;
 
   /// The timestamp of the current state in the store, in UTC.
   DateTime get stateTimestamp => _stateTimestamp;
@@ -229,7 +229,7 @@ class Store<St, Environment> {
   /// The condition can access the state. You may also provide a
   /// [timeoutInSeconds], which by default is null (never times out).
   Future<void> waitCondition(
-    bool Function(St, Environment) condition, {
+    bool Function(St, Environment?) condition, {
     int? timeoutInSeconds,
   }) async {
     var conditionTester = StoreTester.simple(this);
@@ -283,7 +283,7 @@ class Store<St, Environment> {
 
   void createTestInfoSnapshot(
     St state,
-    Environment environment,
+    Environment? environment,
     ReduxAction<St, Environment> action,
     Object? error,
     Object? processedError, {

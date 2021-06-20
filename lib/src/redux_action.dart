@@ -22,7 +22,7 @@ abstract class ReduxAction<St, Environment> {
 
   St get state => _store.state;
 
-  Environment get environment => _store.environment;
+  Environment? get environment => _store.environment;
 
   /// Returns true only if the action finished with no errors.
   /// In other words, if the methods before, reduce and after all finished executing
