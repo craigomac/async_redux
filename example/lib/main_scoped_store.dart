@@ -59,9 +59,18 @@ class UserState {
 class UserEnvironment {}
 
 class UserLoginAction extends ReduxAction<UserState, UserEnvironment> {
+
   @override
-  FutureOr<UserState?> reduce() {
-    return state.copy(loggedIn: true);
+  void before() {
+    print("BEFORE login");
+  }
+
+  @override
+  UserState reduce() => state.copy(loggedIn: true);
+
+  @override
+  void after() {
+    print("AFTER login");
   }
 }
 
