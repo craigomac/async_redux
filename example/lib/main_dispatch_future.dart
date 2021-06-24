@@ -9,7 +9,7 @@ import 'main_before_and_after.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 /// This example shows a List of number descriptions.
 /// Scrolling to the bottom of the list will async load the next 20 elements.

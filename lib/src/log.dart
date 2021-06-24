@@ -27,7 +27,7 @@ import 'package:logging/logging.dart';
 ///     final logger = new Logger("Redux Logger");
 ///     final stateObserver = Log(logger: logger);
 ///
-///     final store = new Store<int>(
+///     final store = new AnyStore<int>(
 ///       initialState: 0,
 ///       stateObserver: [stateObserver]);
 ///

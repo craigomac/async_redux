@@ -22,7 +22,143 @@ typedef Dispatch<St, Environment> = Future<ActionStatus> Function(
   bool notify,
 });
 
+abstract class AnyStore<St, Environment> {
+
+  /// The current state of the app.
+  St get state;
+
+  /// The environment, by which an app collects its dependencies.
+  Environment get environment;
+
+  /// The timestamp of the current state in the store, in UTC.
+  DateTime get stateTimestamp;
+
+  bool get defaultDistinct;
+
+  /// 1) If `null` (the default), view-models which are immutable collections will be compared
+  /// by their default equality.
+  ///
+  /// 2) If `CompareBy.byDeepEquals`, view-models which are immutable collections will be compared
+  /// by their items, one by one (potentially slow comparison).
+  ///
+  /// 3) If `CompareBy.byIdentity`, view-models which are immutable collections will be compared
+  /// by their internals being identical (very fast comparison).
+  ///
+  /// Note: This works with immutable collections `IList`, `ISet`, `IMap` and `IMapOfSets` from
+  /// the https://pub.dev/packages/fast_immutable_collections package.
+  ///
+  CompareBy? get immutableCollectionEquality;
+
+  /// A stream that emits the current state when it changes.
+  ///
+  /// # Example
+  ///
+  ///     // Create the Store;
+  ///     final store = new AnyStore<int>(initialState: 0);
+  ///
+  ///     // Listen to the Store's onChange stream, and print the latest
+  ///     // state to the console whenever the reducer produces a new state.
+  ///     // Store StreamSubscription as a variable, so you can stop listening later.
+  ///     final subscription = store.onChange.listen(print);
+  ///
+  ///     // Dispatch some actions, which prints the state.
+  ///     store.dispatch(IncrementAction());
+  ///
+  ///     // When you want to stop printing, cancel the subscription.
+  ///     subscription.cancel();
+  ///
+  Stream<St> get onChange;
+
+    /// Runs the action, applying its reducer, and possibly changing the store state.
+  /// Note: store.dispatch is of type Dispatch.
+  Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true});
+
+}
+
 // /////////////////////////////////////////////////////////////////////////////
+
+///
+typedef StateConverter<BaseState, State> = State Function(BaseState baseState);
+
+///
+typedef StateIntegrator<State, Substate> = State Function(State state, Substate? deltaState);
+
+///
+typedef ActionConverter<State, TargetState, Environment, TargetEnvironment> = ReduxAction<TargetState, TargetEnvironment> Function(ReduxAction<State, Environment> action);
+
+///
+typedef EnvironmentConverter<BaseEnvironment, Environment> = Environment Function(BaseEnvironment environment);
+
+/// A special kind of Store that forwards actions to a higher level store, and
+/// publishes a subset of that store's state.
+/// 
+/// This way you can "nest" stores, for a more composable state management pattern.
+class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnyStore<State, Environment> {
+  final AnyStore<BaseState, BaseEnvironment> baseStore;
+
+  final StateConverter<BaseState, State> stateConverter;
+
+  final StateIntegrator<BaseState, State> stateIntegrator;
+
+  final EnvironmentConverter<BaseEnvironment, Environment> environmentConverter;
+
+  ScopedStore({
+    required this.baseStore,
+    required this.stateConverter,
+    required this.stateIntegrator,
+    required this.environmentConverter,
+  });
+
+  @override
+  State get state => stateConverter(baseStore.state);
+
+  @override
+  Stream<State> get onChange => baseStore.onChange.map((state) => stateConverter(state));
+
+  @override
+  bool get defaultDistinct => baseStore.defaultDistinct;
+
+  @override
+  Environment get environment => environmentConverter(baseStore.environment);
+
+  @override
+  CompareBy? get immutableCollectionEquality => baseStore.immutableCollectionEquality;
+
+  @override
+  DateTime get stateTimestamp => baseStore.stateTimestamp;
+
+  @override
+  Future<ActionStatus> dispatch(ReduxAction<State, Environment> action, {bool notify = true})
+    => baseStore.dispatch(PullbackAction<State, Environment, BaseState, BaseEnvironment>(this, action, stateIntegrator));
+}
+
+/// Generate an action designed to run on a base store dispatched by a child store.
+class PullbackAction<State, Environment, BaseState, BaseEnvironment> extends ReduxAction<BaseState, BaseEnvironment> {
+  final AnyStore<State, Environment> actionStore;
+  final ReduxAction<State, Environment> action;
+  final StateIntegrator<BaseState, State> stateIntegrator;
+
+  PullbackAction(this.actionStore, this.action, this.stateIntegrator) {
+    // Set store immediately
+    action.setStore(actionStore);
+  }
+  
+  @override
+  Future<BaseState?> reduce() async {
+    return stateIntegrator(state, await action.reduce());
+  }
+
+  @override
+  FutureOr<void> before() => action.before();
+
+  @override
+  void after() => action.after();
+
+  @override
+  bool abortDispatch() => action.abortDispatch();
+
+}
+
 
 /// Creates a Redux store that holds the app state.
 ///
@@ -76,7 +212,7 @@ typedef Dispatch<St, Environment> = Future<ActionStatus> Function(
 ///
 /// For more info, see: https://pub.dartlang.org/packages/async_redux
 ///
-class Store<St, Environment> {
+class Store<St, Environment> extends AnyStore<St, Environment> {
   Store({
     required St initialState,
     required Environment environment,
@@ -121,29 +257,19 @@ class Store<St, Environment> {
 
   DateTime _stateTimestamp;
 
-  /// The current state of the app.
+  @override
   St get state => _state;
 
-  /// The environment, by which an app collects its dependencies.
+  @override
   Environment get environment => _environment;
 
-  /// The timestamp of the current state in the store, in UTC.
+  @override
   DateTime get stateTimestamp => _stateTimestamp;
 
+  @override
   bool get defaultDistinct => _defaultDistinct;
-
-  /// 1) If `null` (the default), view-models which are immutable collections will be compared
-  /// by their default equality.
-  ///
-  /// 2) If `CompareBy.byDeepEquals`, view-models which are immutable collections will be compared
-  /// by their items, one by one (potentially slow comparison).
-  ///
-  /// 3) If `CompareBy.byIdentity`, view-models which are immutable collections will be compared
-  /// by their internals being identical (very fast comparison).
-  ///
-  /// Note: This works with immutable collections `IList`, `ISet`, `IMap` and `IMapOfSets` from
-  /// the https://pub.dev/packages/fast_immutable_collections package.
-  ///
+  
+  @override
   CompareBy? get immutableCollectionEquality => _immutableCollectionEquality;
 
   ModelObserver? get modelObserver => _modelObserver;
@@ -182,24 +308,7 @@ class Store<St, Environment> {
 
   TestInfoPrinter? get testInfoPrinter => _testInfoPrinter;
 
-  /// A stream that emits the current state when it changes.
-  ///
-  /// # Example
-  ///
-  ///     // Create the Store;
-  ///     final store = new Store<int>(initialState: 0);
-  ///
-  ///     // Listen to the Store's onChange stream, and print the latest
-  ///     // state to the console whenever the reducer produces a new state.
-  ///     // Store StreamSubscription as a variable, so you can stop listening later.
-  ///     final subscription = store.onChange.listen(print);
-  ///
-  ///     // Dispatch some actions, which prints the state.
-  ///     store.dispatch(IncrementAction());
-  ///
-  ///     // When you want to stop printing, cancel the subscription.
-  ///     subscription.cancel();
-  ///
+  @override
   Stream<St> get onChange => _changeController.stream;
 
   /// Used by the storeTester.
@@ -260,8 +369,7 @@ class Store<St, Environment> {
 
   bool get isShutdown => _shutdown;
 
-  /// Runs the action, applying its reducer, and possibly changing the store state.
-  /// Note: store.dispatch is of type Dispatch.
+  @override
   Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true}) =>
       _dispatch(action, notify: notify);
 
@@ -280,6 +388,18 @@ class Store<St, Environment> {
 
     return _processAction(action, notify: notify);
   }
+  
+  ScopedStore<TargetState, TargetEnvironment, St, Environment> scope<TargetState, TargetEnvironment>({
+    required StateConverter<St, TargetState> state,
+    required StateIntegrator<St, TargetState> integrateState,
+    required EnvironmentConverter<Environment, TargetEnvironment> environment,
+  }) 
+  => ScopedStore(
+    baseStore: this, 
+    stateConverter: state, 
+    stateIntegrator: integrateState,
+     environmentConverter: environment
+  );
 
   void createTestInfoSnapshot(
     St state,

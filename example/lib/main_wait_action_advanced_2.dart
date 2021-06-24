@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 /// This example is the same as the one in `main_wait_action_advanced_1.dart`.
 /// However, instead of only using flags in the [WaitAction], it uses both

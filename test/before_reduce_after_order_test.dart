@@ -16,7 +16,7 @@ void main() {
   test('Method call sequence for sync reducer.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
     store.dispatch(ActionA());
     expect(store.state, "A");
     expect(info, [
@@ -33,7 +33,7 @@ void main() {
       'The reducer is async because the method returns Future.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
     await store.dispatch(ActionB());
     expect(store.state, "B");
     expect(info, [
@@ -51,7 +51,7 @@ void main() {
       'The reducer is async because the REDUCE method returns Future.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     // B is dispatched first, but will finish last, because it's async.
     var f1 = store.dispatch(ActionB());
@@ -77,7 +77,7 @@ void main() {
       'The reducer is async because the BEFORE method returns Future.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     // C is dispatched first, but will finish last, because it's async.
     var f1 = store.dispatch(ActionC());
@@ -103,7 +103,7 @@ void main() {
       'Shows what happens if the before method actually awaits.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     // D is dispatched first, but will finish last, because it's async.
     var f1 = store.dispatch(ActionD());
@@ -129,7 +129,7 @@ void main() {
       'The state is changed by the reduce method before the after method is executed.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
     await store.dispatch(ActionE());
 
     //
@@ -152,7 +152,7 @@ void main() {
       'The state is changed by the reduce method before the after method is executed.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
     await store.dispatch(ActionF());
 
     //

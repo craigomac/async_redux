@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<int, int> store;
+late AnyStore<int, int> store;
 
 /// This example shows how to prevent creating view-models from invalid states.
 /// When the button is tapped, the counter will increment 5 times, synchronously.

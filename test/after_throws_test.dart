@@ -20,7 +20,7 @@ void main() {
     //
     dynamic error;
     dynamic asyncError;
-    late Store<String, int> store;
+    late AnyStore<String, int> store;
 
     await runZonedGuarded(() async {
       info = [];

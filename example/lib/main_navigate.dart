@@ -2,7 +2,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

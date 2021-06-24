@@ -3,7 +3,7 @@ import 'package:async_redux/src/wait.dart';
 import 'package:async_redux/src/wait_action.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -213,7 +213,7 @@ void main() {
   ///////////////////////////////////////////////////////////////////////////
 
   test("Test compatibility with the Freezed package.", () {
-    Store<AppStateFreezed, AppEnvironment> freezedStore;
+    AnyStore<AppStateFreezed, AppEnvironment> freezedStore;
     freezedStore = Store<AppStateFreezed, AppEnvironment>(
       initialState: AppStateFreezed(wait: Wait()),
       environment: AppEnvironment(),
@@ -235,7 +235,7 @@ void main() {
   ///////////////////////////////////////////////////////////////////////////
 
   test("Test compatibility with the BuiltValue package.", () {
-    Store<AppStateBuiltValue, AppEnvironment> builtValueStore;
+    AnyStore<AppStateBuiltValue, AppEnvironment> builtValueStore;
     builtValueStore = Store<AppStateBuiltValue, AppEnvironment>(
       initialState: AppStateBuiltValue(wait: Wait()),
       environment: AppEnvironment(),
@@ -257,7 +257,7 @@ void main() {
   ///////////////////////////////////////////////////////////////////////////
 
   test("Test compatibility with the BuiltValue package.", () {
-    Store<AppStateFreezed, AppEnvironment> freezedStore;
+    AnyStore<AppStateFreezed, AppEnvironment> freezedStore;
     freezedStore = Store<AppStateFreezed, AppEnvironment>(
       initialState: AppStateFreezed(wait: Wait()),
       environment: AppEnvironment(),

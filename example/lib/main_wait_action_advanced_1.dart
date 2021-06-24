@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 /// This example shows how to use [WaitAction] in advanced ways.
 /// For this to work, the [AppState] must have a [wait] field of type [Wait],

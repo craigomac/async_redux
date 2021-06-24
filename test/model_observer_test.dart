@@ -13,7 +13,7 @@ void main() {
     (WidgetTester tester) async {
       //
       var modelObserver = DefaultModelObserver<_MyViewModel>();
-      Store<_StateTest, _EnvironmentTest> store = Store<_StateTest, _EnvironmentTest>(
+      AnyStore<_StateTest, _EnvironmentTest> store = Store<_StateTest, _EnvironmentTest>(
         initialState: _StateTest("A", 1),
         environment: _EnvironmentTest(),
         modelObserver: modelObserver,

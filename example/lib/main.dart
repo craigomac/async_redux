@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<int, AppEnvironment> store;
+late AnyStore<int, AppEnvironment> store;
 
 class AppEnvironment {
   final int multiplier;
@@ -16,7 +16,7 @@ class AppEnvironment {
 /// When the button is tapped, the counter will increment synchronously.
 ///
 /// In this simple example, the app state is simply a number (the counter),
-/// and thus the store is defined as `Store<int>`. The initial state is 0.
+/// and thus the store is defined as `AnyStore<int>`. The initial state is 0.
 ///
 void main() {
   store = Store<int, AppEnvironment>(initialState: 0, environment: AppEnvironment(multiplier: 2));  

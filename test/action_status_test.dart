@@ -21,7 +21,7 @@ void main() {
   test('Test detecting that the BEFORE method of an action threw an error.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     var actionA = MyAction(whenToThrow: When.before);
     store.dispatch(actionA);
@@ -36,7 +36,7 @@ void main() {
   test('Test detecting that the REDUCE method of an action threw an error.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     var actionA = MyAction(whenToThrow: When.reduce);
     store.dispatch(actionA);
@@ -54,7 +54,7 @@ void main() {
       "thrown asynchronously (after the async gap).", () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     var hasThrown = false;
     runZonedGuarded(() {
@@ -78,7 +78,7 @@ void main() {
   test('Test detecting that the action threw no errors.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     var actionA = MyAction(whenToThrow: null);
     store.dispatch(actionA);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<int, int> store;
+late AnyStore<int, int> store;
 
 /// This example shows how to use the same view-model architecture of the
 /// flutter_redux package. This is specially useful if you are migrating
@@ -72,7 +72,7 @@ class ViewModel extends Vm {
   }) : super(equals: [counter]);
 
   /// Static factory called by the StoreConnector's converter parameter.
-  static ViewModel fromStore(Store<int, int> store) {
+  static ViewModel fromStore(AnyStore<int, int> store) {
     return ViewModel(
       counter: store.state,
       onIncrement: () => store.dispatch(IncrementAction(amount: 1)),

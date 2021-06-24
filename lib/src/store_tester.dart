@@ -776,7 +776,7 @@ class TestErrorObserver<St, Environment> implements ErrorObserver<St, Environmen
     Object error,
     StackTrace stackTrace,
     ReduxAction<St, Environment> action,
-    Store store,
+    AnyStore<St, Environment> store,
   ) =>
       true;
 }

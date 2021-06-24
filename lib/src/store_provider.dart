@@ -12,16 +12,16 @@ import 'package:flutter/material.dart';
 /// This should generally be a root widget in your App.
 /// Connect to the Store provided by this Widget using a [StoreConnector].
 class StoreProvider<St, Environment> extends InheritedWidget {
-  final Store<St, Environment> _store;
+  final AnyStore<St, Environment> _store;
 
   const StoreProvider({
     Key? key,
-    required Store<St, Environment> store,
+    required AnyStore<St, Environment> store,
     required Widget child,
   })  : _store = store,
         super(key: key, child: child);
 
-  static Store<St, Environment> of<St, Environment>(BuildContext context, Object? debug) {
+  static AnyStore<St, Environment> of<St, Environment>(BuildContext context, Object? debug) {
     final StoreProvider<St, Environment>? provider =
         context.dependOnInheritedWidgetOfExactType<StoreProvider<St, Environment>>();
 
@@ -71,7 +71,7 @@ class StoreConnectorError extends Error {
           
   * Dart 2 (required) 
   * Wrapping your MaterialApp with the StoreProvider<St>, rather than an individual Route
-  * Providing full type information to your Store<St>, StoreProvider<St> and StoreConnector<St, Model>
+  * Providing full type information to your AnyStore<St>, StoreProvider<St> and StoreConnector<St, Model>
   * Ensure you are using consistent and complete imports. E.g. always use `import 'package:my_app/app_state.dart';
       ''';
   }

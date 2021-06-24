@@ -11,12 +11,12 @@ part of async_redux_store;
 /// their default [Object] comparison by identity, or the StoreTester may not work.
 ///
 abstract class ReduxAction<St, Environment> {
-  late Store<St, Environment> _store;
+  late AnyStore<St, Environment> _store;
   final ActionStatus _status = ActionStatus();
 
-  void setStore(Store<St, Environment> store) => _store = store;
+  void setStore(AnyStore<St, Environment> store) => _store = store;
 
-  Store<St, Environment> get store => _store;
+  AnyStore<St, Environment> get store => _store;
 
   ActionStatus get status => _status;
 
@@ -105,9 +105,9 @@ abstract class ReduxAction<St, Environment> {
       "because it's more difficult to use than it seems. "
       "Unless you completely understand what you're doing,"
       "you should only used it with sync reducers.")
-  FutureOr<St?> reduceWithState(Store<St, Environment> store, St state) {
+  FutureOr<St?> reduceWithState(AnyStore<St, Environment> store, St state) {
     setStore(store);
-    _store.defineState(state);
+    (_store as Store<St, Environment>).defineState(state);
     return reduce();
   }
 

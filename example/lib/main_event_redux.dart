@@ -9,7 +9,7 @@ import 'main_before_and_after.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
 
 /// This example shows a text-field, and two buttons.
 /// When the first button is tapped, an async process downloads

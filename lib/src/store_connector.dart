@@ -13,17 +13,17 @@ import 'package:flutter/material.dart';
 
 /// Convert the entire [Store] into a [Model]. The [Model] will
 /// be used to build a Widget using the [ViewModelBuilder].
-typedef StoreConverter<St, Environment, Model> = Model Function(Store<St, Environment> store);
+typedef StoreConverter<St, Environment, Model> = Model Function(AnyStore<St, Environment> store);
 
 /// A function that will be run when the [StoreConnector] is initialized (using
 /// the [State.initState] method). This can be useful for dispatching actions
 /// that fetch data for your Widget when it is first displayed.
-typedef OnInitCallback<St, Environment> = void Function(Store<St, Environment> store);
+typedef OnInitCallback<St, Environment> = void Function(AnyStore<St, Environment> store);
 
 /// A function that will be run when the StoreConnector is removed from the Widget Tree.
 /// It is run in the [State.dispose] method.
 /// This can be useful for dispatching actions that remove stale data from your State tree.
-typedef OnDisposeCallback<St, Environment> = void Function(Store<St, Environment> store);
+typedef OnDisposeCallback<St, Environment> = void Function(AnyStore<St, Environment> store);
 
 /// A test of whether or not your `converter` or `vm` function should run in
 /// response to a State change. For advanced use only.
@@ -46,7 +46,7 @@ typedef ShouldUpdateModel<St> = bool Function(St state);
 /// It can also be used to trigger an action based on the previous state.
 typedef OnWillChangeCallback<St, Environment, Model> = void Function(
   BuildContext context,
-  Store<St, Environment> store,
+  AnyStore<St, Environment> store,
   Model previousVm,
   Model newVm,
 );
@@ -60,14 +60,14 @@ typedef OnWillChangeCallback<St, Environment, Model> = void Function(
 /// the callback performs navigation. For navigation purposes, please use
 /// an [OnWillChangeCallback].
 typedef OnDidChangeCallback<St, Environment, Model> = void Function(
-    BuildContext context, Store<St, Environment> store, Model viewModel);
+    BuildContext context, AnyStore<St, Environment> store, Model viewModel);
 
 /// A function that will be run after the Widget is built the first time.
 /// This function is passed the store and the initial `Model` created by the [vm]
 /// or the [converter] function. This can be useful for starting certain animations,
 /// such as showing Snackbars, after the Widget is built the first time.
 typedef OnInitialBuildCallback<St, Environment, Model> = void Function(
-    BuildContext context, Store<St, Environment> store, Model viewModel);
+    BuildContext context, AnyStore<St, Environment> store, Model viewModel);
 
 /// Build a Widget using the [BuildContext] and [Model].
 /// The [Model] is derived from the [Store] using a [StoreConverter].
@@ -270,7 +270,7 @@ class StoreConnector<St, Environment, Model> extends StatelessWidget
     //
     // The `converter` parameter can be used instead of `vm`.
     else if (converter != null) {
-      return converter!(store as Store<St, Environment>);
+      return converter!(store as AnyStore<St, Environment>);
     }
     //
     // The `model` parameter is deprecated.
@@ -296,7 +296,7 @@ class _StoreStreamListener<St, Environment, Model> extends StatefulWidget {
   final StoreConverter<St, Environment, Model>? converter;
   final VmFactory Function()? vm;
   final BaseModel? model; // Deprecated.
-  final Store<St, Environment> store;
+  final AnyStore<St, Environment> store;
   final Object? debug;
   final StoreConnector storeConnector;
   final bool rebuildOnChange;
@@ -560,15 +560,15 @@ class _StoreStreamListenerState<St, Environment, Model> //
     required Model? modelCurrent,
     required bool isDistinct,
   }) {
-    ModelObserver? modelObserver = widget.store.modelObserver;
+    ModelObserver? modelObserver = (widget.store as Store).modelObserver;
     if (modelObserver != null) {
       modelObserver.observe(
         modelPrevious: modelPrevious,
         modelCurrent: modelCurrent,
         isDistinct: isDistinct,
         storeConnector: widget.storeConnector,
-        reduceCount: widget.store.reduceCount,
-        dispatchCount: widget.store.dispatchCount,
+        reduceCount: (widget.store as Store).reduceCount,
+        dispatchCount: (widget.store as Store).dispatchCount,
       );
     }
   }
@@ -582,7 +582,7 @@ class _StoreStreamListenerState<St, Environment, Model> //
     // The `vm` parameter is recommended.
     if (widget.vm != null) {
       var factory = widget.vm!();
-      internalsVmFactoryInject(factory, state, widget.store);
+      internalsVmFactoryInject(factory, state, widget.store as Store);
       return factory.fromStore() as Model;
     }
     //
@@ -593,7 +593,7 @@ class _StoreStreamListenerState<St, Environment, Model> //
     //
     // The `model` parameter is deprecated.
     else if (widget.model != null) {
-      internalsBaseModelInject(widget.model!, state, widget.store);
+      internalsBaseModelInject(widget.model!, state, widget.store as Store);
       return widget.model!.fromStore() as Model;
     }
     //

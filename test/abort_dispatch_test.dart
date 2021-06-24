@@ -14,7 +14,7 @@ void main() {
   test('Test aborting an action.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     store.dispatch(ActionA(abort: false));
     expect(store.state, "X");
@@ -35,7 +35,7 @@ void main() {
   test('Test aborting an action, where the abortDispatch method accesses the state.', () async {
     //
     info = [];
-    Store<String, int> store = Store<String, int>(initialState: "", environment: 0);
+    AnyStore<String, int> store = Store<String, int>(initialState: "", environment: 0);
 
     store.dispatch(ActionB());
     expect(store.state, "X");

@@ -152,7 +152,7 @@ abstract class VmFactory<St, Environment, T> {
   /// A reference to the connector widget that will instantiate the view-model.
   final T? widget;
 
-  late final Store<St, Environment> _store;
+  late final AnyStore<St, Environment> _store;
   late final St _state;
   late final Dispatch<St, Environment> _dispatch;
   late final UserException? Function() _getAndRemoveFirstError;
@@ -163,7 +163,7 @@ abstract class VmFactory<St, Environment, T> {
   Vm fromStore();
 
   void _setStore(St state, Store store) {
-    _store = store as Store<St, Environment>;
+    _store = store as AnyStore<St, Environment>;
     _state = state;
     _dispatch = store.dispatch;
     _getAndRemoveFirstError = store.getAndRemoveFirstError;

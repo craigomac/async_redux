@@ -18,7 +18,7 @@ abstract class ErrorObserver<St, Environment> {
     Object error,
     StackTrace stackTrace,
     ReduxAction<St, Environment> action,
-    Store<St, Environment> store,
+    AnyStore<St, Environment> store,
   );
 }
 
@@ -40,7 +40,7 @@ class DevelopmentErrorObserver<St, Environment> implements ErrorObserver<St, Env
     Object error,
     StackTrace stackTrace,
     ReduxAction<St, Environment> action,
-    Store store,
+    AnyStore<St, Environment> store,
   ) {
     if (error is UserException)
       return false;
@@ -68,7 +68,7 @@ class SwallowErrorObserver<St, Environment> implements ErrorObserver<St, Environ
     Object error,
     StackTrace stackTrace,
     ReduxAction<St, Environment> action,
-    Store store,
+    AnyStore<St, Environment> store,
   ) {
     return false;
   }

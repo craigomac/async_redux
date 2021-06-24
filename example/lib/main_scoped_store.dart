@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late AnyStore<AppState, AppEnvironment> store;
+late Store<AppState, AppEnvironment> store;
 
 /// This example shows a counter, a text description, and a button.
 /// When the button is tapped, the counter will increment synchronously,
@@ -27,27 +27,66 @@ void main() {
   var state = AppState.initialState();
   var environment = AppEnvironment();
   store = Store<AppState, AppEnvironment>(initialState: state, environment: environment);
+
+  final userStore = store.scope<UserState, UserEnvironment>(
+    state: (state) => state.userState,
+    integrateState: (state, userState) => state.copy(userState: userState),
+    environment: (_) => UserEnvironment()
+  );
+
+  Future.delayed(const Duration(seconds: 3), () {
+    userStore.dispatch(UserLoginAction());
+  });
+  
+
+  // Can also observe userStore, to respond to i.e. requests to log out!
+  // userStore.onChange.listen { if state.requestLogOut == true ... }
+
+
   runApp(MyApp());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+class UserState {
+  final bool loggedIn;
+
+  UserState({required this.loggedIn});
+
+  UserState copy({bool? loggedIn}) => UserState(loggedIn: loggedIn ?? this.loggedIn);
+}
+
+class UserEnvironment {}
+
+class UserLoginAction extends ReduxAction<UserState, UserEnvironment> {
+  @override
+  FutureOr<UserState?> reduce() {
+    return state.copy(loggedIn: true);
+  }
+}
 
 /// The app state, which in this case is a counter, a description, and a waiting flag.
 class AppState {
   final int? counter;
   final String? description;
   final bool? waiting;
-  
+  final UserState userState;
 
-  AppState({this.counter, this.description, this.waiting});
+  AppState({this.counter, this.description, this.waiting, required this.userState});
 
-  AppState copy({int? counter, String? description, bool? waiting}) => AppState(
+  AppState copy({int? counter, String? description, bool? waiting, UserState? userState}) => AppState(
         counter: counter ?? this.counter,
         description: description ?? this.description,
         waiting: waiting ?? this.waiting,
+        userState: userState ?? this.userState
       );
 
-  static AppState initialState() => AppState(counter: 0, description: "", waiting: false);
+  static AppState initialState() => AppState(
+    counter: 0,
+     description: "",
+      waiting: false,
+       userState: UserState(loggedIn: false)
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -62,9 +101,7 @@ class AppState {
   int get hashCode => counter.hashCode ^ description.hashCode ^ waiting.hashCode;
 }
 
-class AppEnvironment {
-
-}
+class AppEnvironment {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -150,6 +187,7 @@ class MyHomePageConnector extends StatelessWidget {
         description: vm.description,
         onIncrement: vm.onIncrement,
         waiting: vm.waiting,
+        loggedIn: vm.loggedIn,
       ),
     );
   }
@@ -165,6 +203,7 @@ class Factory extends VmFactory<AppState, AppEnvironment, MyHomePageConnector> {
         description: state.description,
         waiting: state.waiting,
         onIncrement: () => dispatch(IncrementAndGetDescriptionAction()),
+        loggedIn: state.userState.loggedIn
       );
 }
 
@@ -172,15 +211,17 @@ class Factory extends VmFactory<AppState, AppEnvironment, MyHomePageConnector> {
 class ViewModel extends Vm {
   final int? counter;
   final String? description;
-  final bool? waiting;
+  final bool? waiting;  
   final VoidCallback onIncrement;
+  final bool loggedIn;
 
   ViewModel({
     required this.counter,
     required this.description,
     required this.waiting,
     required this.onIncrement,
-  }) : super(equals: [counter!, description!, waiting!]);
+    required this.loggedIn,
+  }) : super(equals: [counter!, description!, waiting!, loggedIn]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,6 +230,7 @@ class MyHomePage extends StatelessWidget {
   final int? counter;
   final String? description;
   final bool? waiting;
+  final bool? loggedIn;
   final VoidCallback? onIncrement;
 
   MyHomePage({
@@ -196,6 +238,7 @@ class MyHomePage extends StatelessWidget {
     this.counter,
     this.description,
     this.waiting,
+    this.loggedIn,
     this.onIncrement,
   }) : super(key: key);
 
@@ -216,6 +259,7 @@ class MyHomePage extends StatelessWidget {
                   style: const TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
+                Text('You are ${loggedIn == true ? "logged in" : "NOT logged in"}')
               ],
             ),
           ),
