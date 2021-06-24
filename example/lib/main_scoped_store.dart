@@ -27,7 +27,10 @@ late AnyStore<UserState, UserEnvironment> userStore;
 void main() {
   var state = AppState.initialState();
   var environment = AppEnvironment();
-  store = Store<AppState, AppEnvironment>(initialState: state, environment: environment);
+  store = Store<AppState, AppEnvironment>(
+    initialState: state, 
+    environment: environment
+  );
 
   userStore = store.scope<UserState, UserEnvironment>(
     state: (state) => state.userState,
@@ -41,8 +44,9 @@ void main() {
   
 
   // Can also observe userStore, to respond to i.e. requests to log out!
-  // userStore.onChange.listen { if state.requestLogOut == true ... }
-
+  userStore.onChange.listen((userState) {
+    print("--> user state: $userState");
+  });
 
   runApp(MyApp());
 }
