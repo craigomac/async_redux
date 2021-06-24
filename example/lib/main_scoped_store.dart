@@ -7,7 +7,8 @@ import 'package:http/http.dart';
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/async_redux
 
-late Store<AppState, AppEnvironment> store;
+late AnyStore<AppState, AppEnvironment> store;
+late AnyStore<UserState, UserEnvironment> userStore;
 
 /// This example shows a counter, a text description, and a button.
 /// When the button is tapped, the counter will increment synchronously,
@@ -28,7 +29,7 @@ void main() {
   var environment = AppEnvironment();
   store = Store<AppState, AppEnvironment>(initialState: state, environment: environment);
 
-  final userStore = store.scope<UserState, UserEnvironment>(
+  userStore = store.scope<UserState, UserEnvironment>(
     state: (state) => state.userState,
     integrateState: (state, userState) => state.copy(userState: userState),
     environment: (_) => UserEnvironment()
@@ -268,7 +269,18 @@ class MyHomePage extends StatelessWidget {
                   style: const TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
-                Text('You are ${loggedIn == true ? "logged in" : "NOT logged in"}')
+                Text('You are ${loggedIn == true ? "logged in" : "NOT logged in"}'),
+                
+                StoreProvider(store: userStore, child: 
+                Container(
+                  decoration: BoxDecoration(border: Border.all(color: Colors.red)),
+                  padding: const EdgeInsets.all(16),
+                  child: StoreConnector<UserState, UserEnvironment, String>(
+                    converter: (store) => 'According to user store, you are ${store.state.loggedIn == true ? "logged in" : "NOT logged in"}',
+                    builder: (context, model) => Text(model),
+                  )
+                ,))
+
               ],
             ),
           ),

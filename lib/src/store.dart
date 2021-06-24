@@ -73,6 +73,17 @@ abstract class AnyStore<St, Environment> {
   /// Note: store.dispatch is of type Dispatch.
   Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true});
 
+  ScopedStore<TargetState, TargetEnvironment, St, Environment> scope<TargetState, TargetEnvironment>({
+    required StateConverter<St, TargetState> state,
+    required StateIntegrator<St, TargetState> integrateState,
+    required EnvironmentConverter<Environment, TargetEnvironment> environment,
+  }) 
+  => ScopedStore(
+    baseStore: this, 
+    stateConverter: state, 
+    stateIntegrator: integrateState,
+     environmentConverter: environment
+  );
 }
 
 // /////////////////////////////////////////////////////////////////////////////
@@ -388,18 +399,6 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
 
     return _processAction(action, notify: notify);
   }
-  
-  ScopedStore<TargetState, TargetEnvironment, St, Environment> scope<TargetState, TargetEnvironment>({
-    required StateConverter<St, TargetState> state,
-    required StateIntegrator<St, TargetState> integrateState,
-    required EnvironmentConverter<Environment, TargetEnvironment> environment,
-  }) 
-  => ScopedStore(
-    baseStore: this, 
-    stateConverter: state, 
-    stateIntegrator: integrateState,
-     environmentConverter: environment
-  );
 
   void createTestInfoSnapshot(
     St state,
