@@ -92,7 +92,7 @@ abstract class AnyStore<St, Environment> {
 typedef StateConverter<BaseState, State> = State Function(BaseState baseState);
 
 ///
-typedef StateIntegrator<State, Substate> = State Function(State state, Substate? deltaState);
+typedef StateIntegrator<State, Substate> = State Function(State state, Substate deltaState);
 
 ///
 typedef ActionConverter<State, TargetState, Environment, TargetEnvironment> = ReduxAction<TargetState, TargetEnvironment> Function(ReduxAction<State, Environment> action);
@@ -156,7 +156,7 @@ class PullbackAction<State, Environment, BaseState, BaseEnvironment> extends Red
   
   @override
   Future<BaseState?> reduce() async {
-    return stateIntegrator(state, await action.reduce());
+    return stateIntegrator(state, (await action.reduce()) ?? actionStore.state);
   }
 
   @override
