@@ -560,15 +560,15 @@ class _StoreStreamListenerState<St, Environment, Model> //
     required Model? modelCurrent,
     required bool isDistinct,
   }) {
-    ModelObserver? modelObserver = (widget.store as Store).modelObserver;
+    ModelObserver? modelObserver = widget.store.modelObserver;
     if (modelObserver != null) {
       modelObserver.observe(
         modelPrevious: modelPrevious,
         modelCurrent: modelCurrent,
         isDistinct: isDistinct,
         storeConnector: widget.storeConnector,
-        reduceCount: (widget.store as Store).reduceCount,
-        dispatchCount: (widget.store as Store).dispatchCount,
+        reduceCount: widget.store.reduceCount,
+        dispatchCount: widget.store.dispatchCount,
       );
     }
   }

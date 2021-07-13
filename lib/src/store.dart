@@ -69,6 +69,12 @@ abstract class AnyStore<St, Environment> {
   ///
   Stream<St> get onChange;
 
+  ModelObserver? get modelObserver;
+
+  int get dispatchCount;
+
+  int get reduceCount;
+
     /// Runs the action, applying its reducer, and possibly changing the store state.
   /// Note: store.dispatch is of type Dispatch.
   Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true});
@@ -137,6 +143,15 @@ class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnySto
 
   @override
   DateTime get stateTimestamp => baseStore.stateTimestamp;
+
+  @override
+  ModelObserver? get modelObserver => baseStore.modelObserver;
+
+  @override
+  int get reduceCount => baseStore.reduceCount;
+
+  @override
+  int get dispatchCount => baseStore.dispatchCount;
 
   @override
   Future<ActionStatus> dispatch(ReduxAction<State, Environment> action, {bool notify = true})
@@ -283,10 +298,13 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
   @override
   CompareBy? get immutableCollectionEquality => _immutableCollectionEquality;
 
+  @override
   ModelObserver? get modelObserver => _modelObserver;
 
+  @override
   int get dispatchCount => _dispatchCount;
 
+  @override
   int get reduceCount => _reduceCount;
 
   final StreamController<St> _changeController;
