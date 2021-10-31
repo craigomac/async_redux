@@ -23,7 +23,6 @@ typedef Dispatch<St, Environment> = Future<ActionStatus> Function(
 });
 
 abstract class AnyStore<St, Environment> {
-
   /// The current state of the app.
   St get state;
 
@@ -75,21 +74,22 @@ abstract class AnyStore<St, Environment> {
 
   int get reduceCount;
 
-    /// Runs the action, applying its reducer, and possibly changing the store state.
+  /// Runs the action, applying its reducer, and possibly changing the store state.
   /// Note: store.dispatch is of type Dispatch.
-  Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true});
+  Future<ActionStatus> dispatch(ReduxAction<St, Environment> action,
+      {bool notify = true});
 
-  ScopedStore<TargetState, TargetEnvironment, St, Environment> scope<TargetState, TargetEnvironment>({
+  ScopedStore<TargetState, TargetEnvironment, St, Environment>
+      scope<TargetState, TargetEnvironment>({
     required StateConverter<St, TargetState> state,
-    required StateIntegrator<St, TargetState> integrateState,
+    required StateIntegrator<St, Environment, TargetState> integrateState,
     required EnvironmentConverter<Environment, TargetEnvironment> environment,
-  }) 
-  => ScopedStore(
-    baseStore: this, 
-    stateConverter: state, 
-    stateIntegrator: integrateState,
-     environmentConverter: environment
-  );
+  }) =>
+          ScopedStore(
+              baseStore: this,
+              stateConverter: state,
+              stateIntegrator: integrateState,
+              environmentConverter: environment);
 }
 
 // /////////////////////////////////////////////////////////////////////////////
@@ -98,24 +98,29 @@ abstract class AnyStore<St, Environment> {
 typedef StateConverter<BaseState, State> = State Function(BaseState baseState);
 
 ///
-typedef StateIntegrator<State, Substate> = State Function(State state, Substate deltaState);
+typedef StateIntegrator<State, Environment, Substate> = State Function(
+    AnyStore<State, Environment>, Substate deltaState);
 
 ///
-typedef ActionConverter<State, TargetState, Environment, TargetEnvironment> = ReduxAction<TargetState, TargetEnvironment> Function(ReduxAction<State, Environment> action);
+typedef ActionConverter<State, TargetState, Environment, TargetEnvironment>
+    = ReduxAction<TargetState, TargetEnvironment> Function(
+        ReduxAction<State, Environment> action);
 
 ///
-typedef EnvironmentConverter<BaseEnvironment, Environment> = Environment Function(BaseEnvironment environment);
+typedef EnvironmentConverter<BaseEnvironment, Environment> = Environment
+    Function(BaseEnvironment environment);
 
 /// A special kind of Store that forwards actions to a higher level store, and
 /// publishes a subset of that store's state.
-/// 
+///
 /// This way you can "nest" stores, for a more composable state management pattern.
-class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnyStore<State, Environment> {
+class ScopedStore<State, Environment, BaseState, BaseEnvironment>
+    extends AnyStore<State, Environment> {
   final AnyStore<BaseState, BaseEnvironment> baseStore;
 
   final StateConverter<BaseState, State> stateConverter;
 
-  final StateIntegrator<BaseState, State> stateIntegrator;
+  final StateIntegrator<BaseState, BaseEnvironment, State> stateIntegrator;
 
   final EnvironmentConverter<BaseEnvironment, Environment> environmentConverter;
 
@@ -130,7 +135,8 @@ class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnySto
   State get state => stateConverter(baseStore.state);
 
   @override
-  Stream<State> get onChange => baseStore.onChange.map((state) => stateConverter(state));
+  Stream<State> get onChange =>
+      baseStore.onChange.map((state) => stateConverter(state));
 
   @override
   bool get defaultDistinct => baseStore.defaultDistinct;
@@ -139,7 +145,8 @@ class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnySto
   Environment get environment => environmentConverter(baseStore.environment);
 
   @override
-  CompareBy? get immutableCollectionEquality => baseStore.immutableCollectionEquality;
+  CompareBy? get immutableCollectionEquality =>
+      baseStore.immutableCollectionEquality;
 
   @override
   DateTime get stateTimestamp => baseStore.stateTimestamp;
@@ -154,24 +161,31 @@ class ScopedStore<State, Environment, BaseState, BaseEnvironment> extends AnySto
   int get dispatchCount => baseStore.dispatchCount;
 
   @override
-  Future<ActionStatus> dispatch(ReduxAction<State, Environment> action, {bool notify = true})
-    => baseStore.dispatch(PullbackAction<State, Environment, BaseState, BaseEnvironment>(this, action, stateIntegrator));
+  Future<ActionStatus> dispatch(ReduxAction<State, Environment> action,
+          {bool notify = true}) =>
+      baseStore.dispatch(
+          PullbackAction<State, Environment, BaseState, BaseEnvironment>(
+              this, action, stateIntegrator));
 }
 
 /// Generate an action designed to run on a base store dispatched by a child store.
-class PullbackAction<State, Environment, BaseState, BaseEnvironment> extends ReduxAction<BaseState, BaseEnvironment> {
+class PullbackAction<State, Environment, BaseState, BaseEnvironment>
+    extends ReduxAction<BaseState, BaseEnvironment> {
   final AnyStore<State, Environment> actionStore;
   final ReduxAction<State, Environment> action;
-  final StateIntegrator<BaseState, State> stateIntegrator;
+  final StateIntegrator<BaseState, BaseEnvironment, State> stateIntegrator;
 
   PullbackAction(this.actionStore, this.action, this.stateIntegrator) {
     // Set store immediately
     action.setStore(actionStore);
   }
-  
+
   @override
   Future<BaseState?> reduce() async {
-    return stateIntegrator(state, (await action.reduce()) ?? actionStore.state);
+    return stateIntegrator(
+      _store,
+      (await action.reduce()) ?? actionStore.state,
+    );
   }
 
   @override
@@ -182,9 +196,7 @@ class PullbackAction<State, Environment, BaseState, BaseEnvironment> extends Red
 
   @override
   bool abortDispatch() => action.abortDispatch();
-
 }
-
 
 /// Creates a Redux store that holds the app state.
 ///
@@ -294,7 +306,7 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
 
   @override
   bool get defaultDistinct => _defaultDistinct;
-  
+
   @override
   CompareBy? get immutableCollectionEquality => _immutableCollectionEquality;
 
@@ -341,10 +353,11 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
   Stream<St> get onChange => _changeController.stream;
 
   /// Used by the storeTester.
-  Stream<TestInfo<St, Environment>> get onReduce => (_testInfoController != null)
-      ? //
-      _testInfoController!.stream
-      : Stream<TestInfo<St, Environment>>.empty();
+  Stream<TestInfo<St, Environment>> get onReduce =>
+      (_testInfoController != null)
+          ? //
+          _testInfoController!.stream
+          : Stream<TestInfo<St, Environment>>.empty();
 
   /// Turns on testing capabilities, if not already.
   void initTestInfoController() {
@@ -373,7 +386,8 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
     var conditionTester = StoreTester.simple(this);
     try {
       await conditionTester.waitCondition(
-        (TestInfo<St, Environment>? info) => condition(info!.state, info.environment),
+        (TestInfo<St, Environment>? info) =>
+            condition(info!.state, info.environment),
         timeoutInSeconds: timeoutInSeconds,
       );
     } finally {
@@ -399,10 +413,12 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
   bool get isShutdown => _shutdown;
 
   @override
-  Future<ActionStatus> dispatch(ReduxAction<St, Environment> action, {bool notify = true}) =>
+  Future<ActionStatus> dispatch(ReduxAction<St, Environment> action,
+          {bool notify = true}) =>
       _dispatch(action, notify: notify);
 
-  Future<ActionStatus> _dispatch(ReduxAction<St, Environment> action, {required bool notify}) async {
+  Future<ActionStatus> _dispatch(ReduxAction<St, Environment> action,
+      {required bool notify}) async {
     // The action may access the store/state/dispatch as fields.
     action.setStore(this);
 
@@ -499,7 +515,8 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
     return action._status;
   }
 
-  FutureOr<void> _applyReducer(ReduxAction<St, Environment> action, {bool notify = true}) {
+  FutureOr<void> _applyReducer(ReduxAction<St, Environment> action,
+      {bool notify = true}) {
     _reduceCount++;
 
     Reducer<St?, Environment> reducer = action.wrapReduce(action.reduce);
@@ -638,7 +655,8 @@ class Store<St, Environment> extends AnyStore<St, Environment> {
   ) {
     if (!afterWasRun.value) _after(action);
 
-    createTestInfoSnapshot(state!, environment, action, error, processedError, ini: false);
+    createTestInfoSnapshot(state!, environment, action, error, processedError,
+        ini: false);
 
     if (_actionObservers != null)
       for (ActionObserver observer in _actionObservers!) {
