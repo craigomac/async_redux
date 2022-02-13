@@ -28,20 +28,17 @@ void main() {
   var state = AppState.initialState();
   var environment = AppEnvironment();
   store = Store<AppState, AppEnvironment>(
-    initialState: state, 
-    environment: environment
-  );
+      initialState: state, environment: environment);
 
   userStore = store.scope<UserState, UserEnvironment>(
-    state: (state) => state.userState,
-    integrateState: (state, userState) => state.copy(userState: userState),
-    environment: (_) => UserEnvironment()
-  );
+      state: (state) => state.userState,
+      integrateState: (store, userState) =>
+          store.state.copy(userState: userState),
+      environment: (_) => UserEnvironment());
 
   Future.delayed(const Duration(seconds: 3), () {
     userStore.dispatch(UserLoginAction());
   });
-  
 
   // Can also observe userStore, to respond to i.e. requests to log out!
   userStore.onChange.listen((userState) {
@@ -58,13 +55,13 @@ class UserState {
 
   UserState({required this.loggedIn});
 
-  UserState copy({bool? loggedIn}) => UserState(loggedIn: loggedIn ?? this.loggedIn);
+  UserState copy({bool? loggedIn}) =>
+      UserState(loggedIn: loggedIn ?? this.loggedIn);
 }
 
 class UserEnvironment {}
 
 class UserLoginAction extends ReduxAction<UserState, UserEnvironment> {
-
   @override
   void before() {
     print("BEFORE login");
@@ -86,21 +83,25 @@ class AppState {
   final bool? waiting;
   final UserState userState;
 
-  AppState({this.counter, this.description, this.waiting, required this.userState});
+  AppState(
+      {this.counter, this.description, this.waiting, required this.userState});
 
-  AppState copy({int? counter, String? description, bool? waiting, UserState? userState}) => AppState(
-        counter: counter ?? this.counter,
-        description: description ?? this.description,
-        waiting: waiting ?? this.waiting,
-        userState: userState ?? this.userState
-      );
+  AppState copy(
+          {int? counter,
+          String? description,
+          bool? waiting,
+          UserState? userState}) =>
+      AppState(
+          counter: counter ?? this.counter,
+          description: description ?? this.description,
+          waiting: waiting ?? this.waiting,
+          userState: userState ?? this.userState);
 
   static AppState initialState() => AppState(
-    counter: 0,
-     description: "",
+      counter: 0,
+      description: "",
       waiting: false,
-       userState: UserState(loggedIn: false)
-  );
+      userState: UserState(loggedIn: false));
 
   @override
   bool operator ==(Object other) =>
@@ -112,7 +113,8 @@ class AppState {
           waiting == other.waiting;
 
   @override
-  int get hashCode => counter.hashCode ^ description.hashCode ^ waiting.hashCode;
+  int get hashCode =>
+      counter.hashCode ^ description.hashCode ^ waiting.hashCode;
 }
 
 class AppEnvironment {}
@@ -132,7 +134,8 @@ class MyApp extends StatelessWidget {
 
 /// This action increments the counter by 1,
 /// and then gets some description text relating to the new counter number.
-class IncrementAndGetDescriptionAction extends ReduxAction<AppState, AppEnvironment> {
+class IncrementAndGetDescriptionAction
+    extends ReduxAction<AppState, AppEnvironment> {
   //
   // Async reducer.
   // To make it async we simply return Future<AppState> instead of AppState.
@@ -142,7 +145,8 @@ class IncrementAndGetDescriptionAction extends ReduxAction<AppState, AppEnvironm
     dispatch(IncrementAction(amount: 1));
 
     // Then, we start and wait for some asynchronous process.
-    String description = await read(Uri.http("numbersapi.com","${state.counter}"));
+    String description =
+        await read(Uri.http("numbersapi.com", "${state.counter}"));
 
     // After we get the response, we can modify the state with it,
     // without having to dispatch another action.
@@ -213,19 +217,18 @@ class Factory extends VmFactory<AppState, AppEnvironment, MyHomePageConnector> {
 
   @override
   ViewModel fromStore() => ViewModel(
-        counter: state.counter,
-        description: state.description,
-        waiting: state.waiting,
-        onIncrement: () => dispatch(IncrementAndGetDescriptionAction()),
-        loggedIn: state.userState.loggedIn
-      );
+      counter: state.counter,
+      description: state.description,
+      waiting: state.waiting,
+      onIncrement: () => dispatch(IncrementAndGetDescriptionAction()),
+      loggedIn: state.userState.loggedIn);
 }
 
 /// The view-model holds the part of the Store state the dumb-widget needs.
 class ViewModel extends Vm {
   final int? counter;
   final String? description;
-  final bool? waiting;  
+  final bool? waiting;
   final VoidCallback onIncrement;
   final bool loggedIn;
 
@@ -273,18 +276,20 @@ class MyHomePage extends StatelessWidget {
                   style: const TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
-                Text('You are ${loggedIn == true ? "logged in" : "NOT logged in"}'),
-                
-                StoreProvider(store: userStore, child: 
-                Container(
-                  decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-                  padding: const EdgeInsets.all(16),
-                  child: StoreConnector<UserState, UserEnvironment, String>(
-                    converter: (store) => 'According to user store, you are ${store.state.loggedIn == true ? "logged in" : "NOT logged in"}',
-                    builder: (context, model) => Text(model),
-                  )
-                ,))
-
+                Text(
+                    'You are ${loggedIn == true ? "logged in" : "NOT logged in"}'),
+                StoreProvider(
+                    store: userStore,
+                    child: Container(
+                      decoration:
+                          BoxDecoration(border: Border.all(color: Colors.red)),
+                      padding: const EdgeInsets.all(16),
+                      child: StoreConnector<UserState, UserEnvironment, String>(
+                        converter: (store) =>
+                            'According to user store, you are ${store.state.loggedIn == true ? "logged in" : "NOT logged in"}',
+                        builder: (context, model) => Text(model),
+                      ),
+                    ))
               ],
             ),
           ),

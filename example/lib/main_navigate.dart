@@ -1,6 +1,5 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 late AnyStore<AppState, AppEnvironment> store;
 
@@ -8,7 +7,8 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   NavigateAction.setNavigatorKey(navigatorKey);
-  store = Store<AppState, AppEnvironment>(initialState: AppState(), environment: AppEnvironment());
+  store = Store<AppState, AppEnvironment>(
+      initialState: AppState(), environment: AppEnvironment());
   runApp(MyApp());
 }
 
@@ -74,8 +74,8 @@ class Page1Connector extends StatelessWidget {
 /// Factory that creates a view-model for the StoreConnector.
 class Factory1 extends VmFactory<AppState, AppEnvironment, Page1Connector> {
   @override
-  ViewModel1 fromStore() =>
-      ViewModel1(onChangePage: () => dispatch(NavigateAction.pushNamed("/myRoute")));
+  ViewModel1 fromStore() => ViewModel1(
+      onChangePage: () => dispatch(NavigateAction.pushNamed("/myRoute")));
 }
 
 /// The view-model holds the part of the Store state the dumb-widget needs.

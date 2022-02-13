@@ -1,5 +1,4 @@
 import 'package:async_redux/async_redux.dart';
-import 'package:async_redux/src/store_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,13 +12,15 @@ void main() {
     (WidgetTester tester) async {
       //
       var modelObserver = DefaultModelObserver<_MyViewModel>();
-      AnyStore<_StateTest, _EnvironmentTest> store = Store<_StateTest, _EnvironmentTest>(
+      AnyStore<_StateTest, _EnvironmentTest> store =
+          Store<_StateTest, _EnvironmentTest>(
         initialState: _StateTest("A", 1),
         environment: _EnvironmentTest(),
         modelObserver: modelObserver,
       );
 
-      StoreProvider<_StateTest, _EnvironmentTest> provider = StoreProvider<_StateTest, _EnvironmentTest>(
+      StoreProvider<_StateTest, _EnvironmentTest> provider =
+          StoreProvider<_StateTest, _EnvironmentTest>(
         store: store,
         child: const _MyWidgetConnector(),
       );
@@ -97,9 +98,7 @@ class _StateTest {
 }
 
 @immutable
-class _EnvironmentTest {
-
-}
+class _EnvironmentTest {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +106,8 @@ class _MyWidgetConnector extends StatelessWidget {
   const _MyWidgetConnector();
 
   @override
-  Widget build(BuildContext context) => StoreConnector<_StateTest, _EnvironmentTest, _MyViewModel>(
+  Widget build(BuildContext context) =>
+      StoreConnector<_StateTest, _EnvironmentTest, _MyViewModel>(
         debug: this,
         model: _MyViewModel(),
         builder: (BuildContext context, _MyViewModel vm) => Container(),

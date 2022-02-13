@@ -57,7 +57,8 @@ abstract class Vm {
 
   /// The constructor takes an optional List of fields which will be used
   /// to determine whether two [Vm] are equal.
-  Vm({this.equals = const []}) : assert(_onlyContainFieldsOfAllowedTypes(equals));
+  Vm({this.equals = const []})
+      : assert(_onlyContainFieldsOfAllowedTypes(equals));
 
   /// Fields should not contain functions.
   static bool _onlyContainFieldsOfAllowedTypes(List equals) {
@@ -216,7 +217,7 @@ abstract class BaseModel<St, Environment> {
     return true;
   }
 
-  void _setStore(St state, Store store) {
+  void _setStore(St state, AnyStore store) {
     _state = state;
     _dispatch = store.dispatch;
     _getAndRemoveFirstError = store.getAndRemoveFirstError;
@@ -259,7 +260,8 @@ abstract class BaseModel<St, Environment> {
 }
 
 /// For internal use only. Please don't use this.
-void internalsBaseModelInject<St>(BaseModel baseModel, St state, Store store) {
+void internalsBaseModelInject<St>(
+    BaseModel baseModel, St state, AnyStore store) {
   baseModel._setStore(state, store);
 }
 

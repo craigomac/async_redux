@@ -1,6 +1,4 @@
 import 'package:async_redux/async_redux.dart';
-import 'package:async_redux/src/wait.dart';
-import 'package:async_redux/src/wait_action.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 late AnyStore<AppState, AppEnvironment> store;
@@ -25,7 +23,8 @@ class AppStateFreezed {
 
   AppStateFreezed({this.wait = Wait.empty});
 
-  AppStateFreezed copyWith({Wait? wait}) => AppStateFreezed(wait: wait ?? this.wait);
+  AppStateFreezed copyWith({Wait? wait}) =>
+      AppStateFreezed(wait: wait ?? this.wait);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -36,7 +35,8 @@ class AppStateBuiltValue {
 
   AppStateBuiltValue({this.wait = Wait.empty});
 
-  AppStateBuiltValue rebuild(dynamic func(dynamic state)) => func(AppStateBuiltValue(wait: Wait()));
+  AppStateBuiltValue rebuild(dynamic func(dynamic state)) =>
+      func(AppStateBuiltValue(wait: Wait()));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,8 @@ void main() {
 
   ///////////////////////////////////////////////////////////////////////////
 
-  test("Wait class is immutable. Empty object is always the same instance.", () {
+  test("Wait class is immutable. Empty object is always the same instance.",
+      () {
     var wait1 = Wait();
 
     var wait2 = wait1.add(flag: "x");

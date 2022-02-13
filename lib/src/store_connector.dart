@@ -13,17 +13,20 @@ import 'package:flutter/material.dart';
 
 /// Convert the entire [Store] into a [Model]. The [Model] will
 /// be used to build a Widget using the [ViewModelBuilder].
-typedef StoreConverter<St, Environment, Model> = Model Function(AnyStore<St, Environment> store);
+typedef StoreConverter<St, Environment, Model> = Model Function(
+    AnyStore<St, Environment> store);
 
 /// A function that will be run when the [StoreConnector] is initialized (using
 /// the [State.initState] method). This can be useful for dispatching actions
 /// that fetch data for your Widget when it is first displayed.
-typedef OnInitCallback<St, Environment> = void Function(AnyStore<St, Environment> store);
+typedef OnInitCallback<St, Environment> = void Function(
+    AnyStore<St, Environment> store);
 
 /// A function that will be run when the StoreConnector is removed from the Widget Tree.
 /// It is run in the [State.dispose] method.
 /// This can be useful for dispatching actions that remove stale data from your State tree.
-typedef OnDisposeCallback<St, Environment> = void Function(AnyStore<St, Environment> store);
+typedef OnDisposeCallback<St, Environment> = void Function(
+    AnyStore<St, Environment> store);
 
 /// A test of whether or not your `converter` or `vm` function should run in
 /// response to a State change. For advanced use only.
@@ -507,9 +510,11 @@ class _StoreStreamListenerState<St, Environment, Model> //
         (_latestModel is ImmutableCollection) &&
         widget.store.immutableCollectionEquality != null) {
       if (widget.store.immutableCollectionEquality == CompareBy.byIdentity)
-        return areSameImmutableCollection(vm, _latestModel as ImmutableCollection?);
+        return areSameImmutableCollection(
+            vm, _latestModel as ImmutableCollection?);
       if (widget.store.immutableCollectionEquality == CompareBy.byDeepEquals) {
-        return areImmutableCollectionsWithEqualItems(vm, _latestModel as ImmutableCollection?);
+        return areImmutableCollectionsWithEqualItems(
+            vm, _latestModel as ImmutableCollection?);
       } else
         throw AssertionError(widget.store.immutableCollectionEquality);
     } else
@@ -593,7 +598,7 @@ class _StoreStreamListenerState<St, Environment, Model> //
     //
     // The `model` parameter is deprecated.
     else if (widget.model != null) {
-      internalsBaseModelInject(widget.model!, state, widget.store as Store);
+      internalsBaseModelInject(widget.model!, state, widget.store as AnyStore);
       return widget.model!.fromStore() as Model;
     }
     //
